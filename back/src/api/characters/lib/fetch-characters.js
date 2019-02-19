@@ -5,10 +5,10 @@ const config = require('../../../config');
 
 
 /**
- * Get a file stream from a url
- * Try to get the filename from it's content-disposition (in the response)
- * @param  {String} url [url to download]
- * @return {Object}     [composite : stream object and obtained filename]
+ * Get characters from marvel api
+ * @param  {Number} limit [limit of returned items]
+ * @param  {Number} offset [offset of the current api call]
+ * @return {Object}     [composite : data object and offset]
  */
 async function fetchCharactersFromAPI(limit, offset) {
   const { marvelAPI: { apiKey, secret, endpoint, thumbnailSize } } = config;
