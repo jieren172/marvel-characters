@@ -11,10 +11,15 @@ Change the config values like `marvel api key` and `marvel api secret` in :
 # Run app locally in terminal
 
 ### 1. Open a terminal, go to the `back` folder and run:
+`npm install`
 `npm start`
 
-### 3. Open another terminal, go to the `web` folder and run:
+### 2. Open another terminal, go to the `web` folder and run:
+`npm install`
 `npm start`
+
+### 3. Go go the broser and type `http://localhost:3000`
+
 
 
 # Deploy in AWS (use a profile with enough access : ECS, ECR, S3, EC2)
