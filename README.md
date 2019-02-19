@@ -36,7 +36,8 @@ NOTE: We can add Application load balancers to the two fargates services in ECS 
 * build publish the docker image (will create the repo in this step):
 `PROFILE=[your aws profile] STAGE=[your stage] REGION=[your was region] make publish`
 * run serverless deploy (the marvel api key and secret you can configure in the config file instead of putting in here):
-`serverless deploy \
+```
+serverless deploy \
   --stage [stage] \
   --aws-profile [aws profile] \
   --region [region] \
@@ -44,7 +45,8 @@ NOTE: We can add Application load balancers to the two fargates services in ECS 
   --vpc-subnet [your aws subnet in the VPC] \
   --back-docker-image [the docker image URI you just pushed] \
   --marvel-api-key [your marvel API key] \
-  --marvel-api-secret [your marvel API secret]`
+  --marvel-api-secret [your marvel API secret]
+```
 
 ### 2. wait the serverless deploy finished and fetch the public ip of the back end fargate task:
 `aws ec2 describe-network-interfaces --network-interface-ids $(aws ecs describe-tasks --cluster marvel-characters-back-dev --task $(aws ecs list-tasks --cluster marvel-characters-back-dev | jq -r ".taskArns[0]") | jq -r ".tasks[0].attachments[0].details[1].value") | jq -r ".NetworkInterfaces[0].Association.PublicIp"`
@@ -55,14 +57,16 @@ It displays the ip, and copy that ip to use it in the next step
 * build publish the docker image (will create the repo in this step):
 `PROFILE=[your aws profile] REGION=[your was region] make publish`
 * run serverless deploy (use the public Ip fetched in step 2):
-`serverless deploy \
+```
+serverless deploy \
     --stage [stage] \
     --aws-profile [your aws account] \
     --region [your aws region] \
     --[your aws VPC id] \
     --vpc-subnet [your subnet id in the VPC] \
     --web-docker-image [web docker image URI] \
-    --backend-public-ip [public ip]`
+    --backend-public-ip [public ip]
+```
 
 
 ### 4. wait the serverless deploy finished and fetch the public ip of the web app fargate task:
