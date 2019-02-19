@@ -1,0 +1,16 @@
+Type: AWS::IAM::Role
+Properties:
+  RoleName: ${self:custom.naming}-web-task-role
+  AssumeRolePolicyDocument:
+    Version: "2012-10-17"
+    Statement:
+      - Effect: Allow
+        Principal:
+          Service:
+            - "ecs-tasks.amazonaws.com"
+        Action:
+          - "sts:AssumeRole"
+  ManagedPolicyArns:
+    - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+  # Policies:
+  #   # add policies if needed

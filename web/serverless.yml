@@ -1,0 +1,117 @@
+service: marvel-characters-web
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-1'}
+  profile: ${opt:aws-profile, 'dev'}
+
+  environment:
+    DEBUG: '*'
+  role: true
+  # timeout: 60
+
+package:
+  individually: true
+  exclude:
+    - .git/**
+
+custom:
+  naming: ${self:service}-${self:provider.stage}
+  params: ${file(./serverless.params.yml):${self:provider.stage}}
+
+
+resources:
+  Resources:
+    ############################################################################
+    # IAM Roles and SG
+    ############################################################################
+    MarvelCharactersWebTaskRole: ${file(./deployment/iam/MarvelCharactersWebTaskRole.yml)}
+    ############################################################################
+    MarvelCharactersSecurityGroup:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupName: ${self:custom.naming}-securityGroup
+        GroupDescription: 'SG for marvel characters'
+        SecurityGroupIngress:
+          -
+            IpProtocol: "tcp"
+            FromPort: 3000
+            ToPort: 3000
+            CidrIp: "0.0.0.0/0"
+        VpcId: ${self:custom.params.vpc}
+    ############################################################################
+    # ECS Cluster and Fargate Service
+    ############################################################################
+    MarvelCharactersCluster:
+      Type: AWS::ECS::Cluster
+      Properties:
+        ClusterName: ${self:custom.naming}
+    MarvelCharactersWebTask:
+      Type: AWS::ECS::TaskDefinition
+      Properties:
+        Family: ${self:custom.naming}-web-task
+        RequiresCompatibilities:
+          - FARGATE # use fargate
+        NetworkMode: awsvpc # network mode for fargate
+        ExecutionRoleArn:
+          Fn::GetAtt:
+            - MarvelCharactersWebTaskRole
+            - Arn
+        Cpu: ${self:custom.params.taskVCpu}
+        Memory: ${self:custom.params.taskMemory}
+        TaskRoleArn:
+          Fn::GetAtt:
+            - MarvelCharactersWebTaskRole
+            - Arn
+        ContainerDefinitions:
+          - Name: ${self:custom.naming}-web-container
+            Image: ${self:custom.params.dockerImage}
+            Cpu: ${self:custom.params.containerCpu}
+            Memory: ${self:custom.params.containerMemory}
+            Essential: true
+            Environment:
+              - Name: REACT_APP_ENV
+                Value: ${self:provider.stage}
+              - Name: REACT_APP_SERVER_URL
+                Value: ${self:custom.params.apiEndpoint}
+            PortMappings:
+              - ContainerPort: 3000
+                HostPort: 3000
+            LogConfiguration:
+              LogDriver: awslogs
+              Options:
+                awslogs-group: /aws/ecs/${self:custom.naming}
+                awslogs-region: ${self:provider.region}
+                awslogs-stream-prefix: ${self:custom.naming}-web-container
+
+    MarvelCharactersWebService:
+      Type: AWS::ECS::Service
+      Properties:
+        Cluster:
+          Ref: MarvelCharactersCluster
+        # DeploymentConfiguration:
+        #   DeploymentConfiguration
+        DesiredCount: ${self:custom.params.serviceTaskDesiredCount}
+        LaunchType: 'FARGATE'
+        NetworkConfiguration:
+          AwsvpcConfiguration:
+            AssignPublicIp: 'ENABLED'
+            SecurityGroups:
+               -
+                 Ref: MarvelCharactersSecurityGroup
+            Subnets:
+               - ${self:custom.params.vpcSubnet}
+        # Role: String
+        ServiceName: ${self:custom.naming}-web-service
+        TaskDefinition:
+          Ref: MarvelCharactersWebTask
+
+    ############################################################################
+    # CloudWatch
+    ############################################################################
+    PictorellaLogGroup:
+      Type: AWS::Logs::LogGroup
+      Properties:
+        LogGroupName: /aws/ecs/${self:custom.naming}

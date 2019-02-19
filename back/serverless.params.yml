@@ -1,0 +1,12 @@
+poc:
+dev:
+  vpc: ${opt:vpc, ''} # put default value in ''
+  vpcSubnet: ${opt:vpc-subnet, ''} # put default value in ''
+  dockerImage: ${opt:back-docker-image}
+  marvelApiKey: ${opt:marvel-api-key, ''} # put default value in ''
+  marvelApiSecret: ${opt:marvel-api-secret, ''} # put default value in ''
+  serviceTaskDesiredCount: 1
+  taskVCpu: 256  # 1024 = 1 vCpu
+  taskMemory: 512 # MB
+  containerCpu: 1
+  containerMemory: 512
