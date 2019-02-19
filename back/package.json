@@ -1,0 +1,36 @@
+{
+  "name": "marvel-characters-back",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint ./src --fix",
+    "start": "node src/index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "content-disposition": "^0.5.3",
+    "cors": "^2.8.5",
+    "express": "^4.16.4",
+    "md5": "^2.2.1",
+    "mongoose": "^5.4.6",
+    "mongoose-paginate": "^5.0.3",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.5",
+    "stream-to-promise": "^2.2.0",
+    "timeout-as-promise": "^1.0.0",
+    "url-join": "^4.0.0",
+    "yargs": "^12.0.5"
+  },
+  "jest": {
+    "testEnvironment": "node"
+  },
+  "devDependencies": {
+    "eslint": "^5.12.1",
+    "jest": "^24.0.0",
+    "superagent": "^4.1.0",
+    "supertest": "^3.4.2"
+  }
+}
