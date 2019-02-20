@@ -34,7 +34,9 @@ NOTE: We can add Application load balancers to the two fargates services in ECS 
 
 ### 1. go to the `back` folder and
 * build publish the docker image (will create the repo in this step):
-`PROFILE=[your aws profile] STAGE=[your stage] REGION=[your was region] make publish`
+```
+PROFILE=[your aws profile] STAGE=[your stage] REGION=[your was region] make publish
+```
 * run serverless deploy (the marvel api key and secret you can configure in the config file instead of putting in here):
 ```
 serverless deploy \
@@ -49,20 +51,24 @@ serverless deploy \
 ```
 
 ### 2. wait the serverless deploy finished and fetch the public ip of the back end fargate task:
-`aws ec2 describe-network-interfaces --network-interface-ids $(aws ecs describe-tasks --cluster marvel-characters-back-dev --task $(aws ecs list-tasks --cluster marvel-characters-back-dev | jq -r ".taskArns[0]") | jq -r ".tasks[0].attachments[0].details[1].value") | jq -r ".NetworkInterfaces[0].Association.PublicIp"`
+```
+aws ec2 describe-network-interfaces --network-interface-ids $(aws ecs describe-tasks --cluster marvel-characters-back-dev --task $(aws ecs list-tasks --cluster marvel-characters-back-dev | jq -r ".taskArns[0]") | jq -r ".tasks[0].attachments[0].details[1].value") | jq -r ".NetworkInterfaces[0].Association.PublicIp"
+```
 
 It displays the ip, and copy that ip to use it in the next step
 
 ### 3. go to the `web` folder and
 * build publish the docker image (will create the repo in this step):
-`PROFILE=[your aws profile] REGION=[your was region] make publish`
+```
+PROFILE=[your aws profile] REGION=[your aws region] make publish
+```
 * run serverless deploy (use the public Ip fetched in step 2):
 ```
 serverless deploy \
     --stage [stage] \
     --aws-profile [your aws account] \
     --region [your aws region] \
-    --[your aws VPC id] \
+    --vpc[your aws VPC id] \
     --vpc-subnet [your subnet id in the VPC] \
     --web-docker-image [web docker image URI] \
     --backend-public-ip [public ip]
@@ -70,7 +76,9 @@ serverless deploy \
 
 
 ### 4. wait the serverless deploy finished and fetch the public ip of the web app fargate task:
-`aws ec2 describe-network-interfaces --network-interface-ids $(aws ecs describe-tasks --cluster marvel-characters-web-dev --task $(aws ecs list-tasks --cluster marvel-characters-web-dev | jq -r ".taskArns[0]") | jq -r ".tasks[0].attachments[0].details[1].value") | jq -r ".NetworkInterfaces[0].Association.PublicIp"`
+```
+aws ec2 describe-network-interfaces --network-interface-ids $(aws ecs describe-tasks --cluster marvel-characters-web-dev --task $(aws ecs list-tasks --cluster marvel-characters-web-dev | jq -r ".taskArns[0]") | jq -r ".tasks[0].attachments[0].details[1].value") | jq -r ".NetworkInterfaces[0].Association.PublicIp"
+```
 
 and go to your broser and type `http://[public ip]:3000`
 
